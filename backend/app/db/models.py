@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -252,11 +253,15 @@ class Notification(Base):
 
 class AttendanceCreate(BaseModel):
     date: datetime
-    check_in: datetime | None = None
-    check_out: datetime | None = None
-    status: str
-    memo: str | None = None
+    check_in: Optional[datetime] = None
+    check_out: Optional[datetime] = None
+    memo: Optional[str] = None
+    location: Optional[str] = None
+    purchase_date: Optional[datetime] = None
+    warranty_date: Optional[datetime] = None
+    description: Optional[str] = None
 
+    
 class AttendanceResponse(AttendanceCreate):
     id: int
     user_id: int
