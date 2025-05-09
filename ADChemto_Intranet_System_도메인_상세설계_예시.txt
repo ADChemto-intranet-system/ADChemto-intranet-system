@@ -1,0 +1,106 @@
+ADChemto Intranet System 자산/시설/일정 도메인 상세 설계 예시
+========================================================
+
+1. 자산(비품) 관리
+------------------
+■ DB 설계(ERD/필드)
+- assets: id, asset_code, name, category, status, location, manager_id, purchase_date, warranty_date, description, ...
+- asset_histories: id, asset_id, user_id, action(대여/반납/수리 등), date, memo
+
+■ 화면 시안(텍스트)
+[자산 목록]
++---------------------------------------------------+
+| [검색] [카테고리] [신규등록]                      |
+|---------------------------------------------------|
+| 자산코드 | 자산명 | 상태 | 위치 | 담당자 | ...     |
+|---------------------------------------------------|
+| ...                                               |
++---------------------------------------------------+
+
+[자산 상세/이력]
++-----------------------------+
+| 자산명: [__________]         |
+| 상태: [사용중/대여/수리 등]  |
+| 위치: [__________]           |
+| 담당자: [__________]         |
+| ...                         |
+| [이력 보기] [수정] [삭제]    |
++-----------------------------+
+
+■ API 스펙
+- GET    /api/v1/assets/?category=PC&status=사용중
+- POST   /api/v1/assets/ { name, category, ... }
+- PATCH  /api/v1/assets/{id} { ... }
+- GET    /api/v1/assets/{id}/history
+
+■ FastAPI 코드 예시
+```python
+@router.get("/assets/")
+def list_assets(category: str = None, status: str = None):
+    ...
+
+@router.post("/assets/")
+def create_asset(asset_in: AssetCreate):
+    ...
+```
+
+2. 시설/회의실 예약
+------------------
+■ DB 설계
+- facilities: id, name, location, capacity, status, description
+- reservations: id, facility_id, user_id, start_time, end_time, status, purpose
+
+■ 화면 시안
+[시설/회의실 예약]
++---------------------------------------------------+
+| [시설선택] [날짜/시간] [예약하기]                 |
+|---------------------------------------------------|
+| 시설명 | 위치 | 용도 | 예약자 | 시작 | 종료 | ... |
+|---------------------------------------------------|
+| ...                                               |
++---------------------------------------------------+
+
+■ API 스펙
+- GET    /api/v1/facilities/
+- POST   /api/v1/reservations/ { facility_id, user_id, start_time, end_time, purpose }
+- GET    /api/v1/facilities/{id}/reservations?date=2024-05-01
+
+■ FastAPI 코드 예시
+```python
+@router.post("/reservations/")
+def reserve_facility(reservation_in: ReservationCreate):
+    ...
+```
+
+3. 일정/캘린더
+--------------
+■ DB 설계
+- schedules: id, title, content, start_time, end_time, type(사내/부서/개인), owner_id, is_repeat, repeat_rule, shared_with, ...
+
+■ 화면 시안
+[캘린더/일정]
++---------------------------------------------------+
+| [월/주/일 보기] [일정 추가]                        |
+|---------------------------------------------------|
+| 날짜 | 제목 | 유형 | 담당자 | ...                 |
+|---------------------------------------------------|
+| ...                                               |
++---------------------------------------------------+
+
+■ API 스펙
+- GET    /api/v1/schedules/?type=부서&owner_id=3
+- POST   /api/v1/schedules/ { title, start_time, ... }
+- PATCH  /api/v1/schedules/{id} { ... }
+
+■ FastAPI 코드 예시
+```python
+@router.get("/schedules/")
+def list_schedules(type: str = None, owner_id: int = None):
+    ...
+
+@router.post("/schedules/")
+def create_schedule(schedule_in: ScheduleCreate):
+    ...
+```
+
+*각 도메인별로 더 상세한 ERD, 화면, API, 코드 예시가 필요하면 언제든 요청해 주세요!* 

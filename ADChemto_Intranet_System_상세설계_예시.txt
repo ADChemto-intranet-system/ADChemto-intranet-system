@@ -1,0 +1,148 @@
+ADChemto Intranet System 상세 설계/화면/API/코드 예시
+===============================================
+
+1. 회원(직원) 관리
+------------------
+■ DB 설계(ERD/필드)
+- users 테이블: id, employee_id, name_kr, name_en, email, password, department_id, position_id, phone_number, ...
+- departments, positions 테이블과 외래키 관계
+
+■ 화면 시안(텍스트)
+[회원 목록]
++---------------------------------------------------+
+| [검색] [부서선택] [신규등록]                      |
+|---------------------------------------------------|
+| 사번 | 이름 | 부서 | 직급 | 이메일 | 상태 | ...   |
+|---------------------------------------------------|
+| ...                                               |
++---------------------------------------------------+
+
+[회원 상세/수정]
++-----------------------------+
+| 이름: [__________]           |
+| 이메일: [__________]         |
+| 부서: [부서선택▼]           |
+| 직급: [직급선택▼]           |
+| ...                         |
+| [저장] [삭제]               |
++-----------------------------+
+
+■ API 스펙
+- GET    /api/v1/users/?department=1&search=홍길동
+- POST   /api/v1/users/ { name_kr, email, ... }
+- PATCH  /api/v1/users/{id} { ... }
+- DELETE /api/v1/users/{id}
+
+■ FastAPI 코드 예시
+```python
+@router.get("/users/")
+def list_users(department: int = None, search: str = None):
+    # 부서/검색 필터링 쿼리
+    ...
+
+@router.post("/users/")
+def create_user(user_in: UserCreate):
+    # 회원 생성
+    ...
+```
+
+■ React 컴포넌트 예시
+```jsx
+function UserList() {
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    fetch('/api/v1/users/').then(res => res.json()).then(setUsers);
+  }, []);
+  return (
+    <table>
+      <thead>...</thead>
+      <tbody>
+        {users.map(u => <tr key={u.id}><td>{u.name_kr}</td>...</tr>)}
+      </tbody>
+    </table>
+  );
+}
+```
+
+2. 근태/출퇴근 관리
+------------------
+■ DB 설계
+- attendances: id, user_id, date, check_in, check_out, type, status, ...
+
+■ 화면 시안
+[근태 현황]
++------------------------------------------+
+| [날짜선택] [출근] [퇴근]                 |
+|------------------------------------------|
+| 날짜 | 출근 | 퇴근 | 상태 | 비고         |
+|------------------------------------------|
+| ...                                     |
++------------------------------------------+
+
+■ API 스펙
+- GET    /api/v1/attendances/?user_id=1&date=2024-05-01
+- POST   /api/v1/attendances/ { user_id, check_in, ... }
+
+■ FastAPI 코드 예시
+```python
+@router.post("/attendances/")
+def check_in(attendance_in: AttendanceCreate):
+    # 출근 등록
+    ...
+```
+
+3. 전자결재/업무보고
+-------------------
+■ DB 설계
+- approvals: id, user_id, type, status, created_at, ...
+- approval_lines: 결재선, approval_files: 첨부파일
+
+■ 화면 시안
+[결재 요청]
++-----------------------------+
+| 결재양식 | 결재선 | 내용입력 |
+| 첨부파일 | [결재 요청]      |
++-----------------------------+
+
+■ API 스펙
+- GET    /api/v1/approvals/?status=진행중
+- POST   /api/v1/approvals/ { ... }
+
+■ FastAPI 코드 예시
+```python
+@router.post("/approvals/")
+def create_approval(approval_in: ApprovalCreate):
+    ...
+```
+
+4. 게시판/커뮤니티
+------------------
+■ DB 설계
+- boards, posts, comments, files
+
+■ 화면 시안
+[게시글 목록]
++------------------------------------------+
+| [게시판선택] [글쓰기]                    |
+|------------------------------------------|
+| 제목 | 작성자 | 날짜 | 조회 | ...        |
+|------------------------------------------|
+| ...                                     |
++------------------------------------------+
+
+■ API 스펙
+- GET    /api/v1/boards/1/posts/
+- POST   /api/v1/boards/1/posts/ { title, content, ... }
+
+■ FastAPI 코드 예시
+```python
+@router.get("/boards/{board_id}/posts/")
+def list_posts(board_id: int):
+    ...
+```
+
+5. 기타(자산, 시설, 일정, 통계 등)
+-------------------------------
+- 위와 유사하게 DB/화면/API/코드 설계
+
+*각 도메인별 상세 설계, ERD, 화면 시안, API/코드 예시가 더 필요하면 말씀해 주세요!* 
